@@ -13,7 +13,23 @@ const rooms = [
 type RoomId = typeof rooms[number]['id']
 const reactions = [['膝蓋給你','🙌'],['神仙下凡','✨'],['求詳細','👀'],['好想認識','💌']]
 const socials = ['社恐潛水員','產糧小能手','熱情擴列王','深夜夜貓子']
-const defaults: Record<RoomId, Post[]> = Object.fromEntries(rooms.map(r => [r.id, r.samples.map((s,i) => ({ id: `${r.id}-${i}`, title: s[0], body: s[1], tags: [r.tags[i % r.tags.length]], author: ['月光收藏家','海鹽奶蓋','一顆小星星'][i], time: ['剛剛','12 分鐘前','1 小時前'][i], reactions: { '膝蓋給你': [8,12,5][i], '神仙下凡': [4,7,3][i], '求詳細': [2,3,8][i], '好想認識': [3,2,4][i] } }))])) as Record<RoomId, Post[]>
+const defaults = rooms.reduce<Record<RoomId, Post[]>>((result, room) => {
+  result[room.id] = room.samples.map((sample, index) => ({
+    id: `${room.id}-${index}`,
+    title: sample[0],
+    body: sample[1],
+    tags: [room.tags[index % room.tags.length]],
+    author: ['月光收藏家', '海鹽奶蓋', '一顆小星星'][index],
+    time: ['剛剛', '12 分鐘前', '1 小時前'][index],
+    reactions: {
+      '膝蓋給你': [8, 12, 5][index],
+      '神仙下凡': [4, 7, 3][index],
+      '求詳細': [2, 3, 8][index],
+      '好想認識': [3, 2, 4][index],
+    },
+  }))
+  return result
+}, {} as Record<RoomId, Post[]>)
 function App() {
   const [saved, setSaved] = useState<Profile | null>(() => readProfile())
   const [profile, setProfile] = useState<Profile>(() => readProfile() ?? structuredClone(defaultProfile))
